@@ -1,5 +1,5 @@
 <!-- antes de enviar a versão final, solicitamos que todos os comentários, colocados para orientação ao aluno, sejam removidos do arquivo -->
-# Nome do projeto
+# Otimização do Processo de Análise de Qualidade de Dados de Produção Upstream com Implementação de Data Warehouse
 
 #### Aluno: [Matheus Muller Barbosa](https://github.com/mmuller94)
 #### Orientador: [Anderson Nascimento](https://github.com/link_do_github).

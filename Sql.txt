@@ -1,0 +1,81 @@
+## Projetos
+SELECT COUNT(*) FROM fato_projetos;
+
+SELECT * FROM fato_projetos LIMIT 10;
+
+##Dutos
+SELECT COUNT(*) FROM dim_dutos;
+
+SELECT * FROM dim_dutos LIMIT 10;
+
+#Trees
+SELECT COUNT(*) FROM dim_subsea_trees;
+
+SELECT * FROM dim_subsea_trees LIMIT 10;
+
+##Criar tabela Completude
+CREATE TABLE IF NOT EXISTS dq_completude_fato (
+    id SERIAL PRIMARY KEY,
+    data_processamento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    campo TEXT NOT NULL,
+    percentual_preenchido NUMERIC(5,2) NOT NULL
+);
+
+SELECT * FROM dq_completude_fato ORDER BY id;
+
+##Criar tabela Consistencia
+CREATE TABLE IF NOT EXISTS dq_consistencia_fato (
+    campo TEXT,
+    percentual_consistente NUMERIC(10,2)
+);
+
+##Comparaçao DQ01 x DQ02
+SELECT
+    COALESCE(c1.campo, c2.campo) AS campo,
+    COALESCE(c1.percentual_preenchido, 0) AS pct_completude,
+    COALESCE(c2.percentual_consistente, 0) AS pct_consistencia
+FROM
+    (
+        SELECT
+            campo,
+            ROUND(AVG(percentual_preenchido), 2) AS percentual_preenchido
+        FROM dq_completude_fato
+        GROUP BY campo
+    ) c1
+FULL OUTER JOIN
+    (
+        SELECT
+            campo,
+            ROUND(AVG(percentual_consistente), 2) AS percentual_consistente
+        FROM dq_consistencia_fato
+        GROUP BY campo
+    ) c2
+ON c1.campo = c2.campo
+ORDER BY campo;
+
+##DQ03 - Duplicidade
+CREATE TABLE IF NOT EXISTS dq_duplicidade_fato (
+    data_processamento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    chave VARCHAR(255),
+    total_registros INT
+);
+
+SELECT 
+    data_processamento,
+    chave,
+    total_registros
+FROM dq_duplicidade_fato
+ORDER BY total_registros DESC;
+
+##DQ04 - Tabela Classificação 
+CREATE TABLE public.dq_classificacao_fato (
+    data_execucao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    classificacao VARCHAR(20),
+    total_projetos INT
+);
+
+SELECT classificacao, SUM(total_projetos) as total_projetos
+FROM dq_classificacao_fato
+GROUP BY classificacao
+ORDER BY classificacao;
+
